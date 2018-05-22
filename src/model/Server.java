@@ -27,6 +27,8 @@ public class Server extends ServerSocket {
 		super(SERVER_PORT);
 		clients = new ConcurrentHashMap<String, ServerThread>();
 		chatrooms = new ConcurrentHashMap<String, Chat>();
+		System.out.println("server starts!");
+		start();
 	}
 	
 	/*
@@ -35,7 +37,9 @@ public class Server extends ServerSocket {
 	public void start() throws Exception {
 		while(true) {
 			Socket s = accept();
+			System.out.println("receive connection!");
 			ServerThread client = new ServerThread(this, s);
+			System.out.println("start add client!");
 			addClient(client);
 			new Thread(client).start();
 		}
@@ -52,7 +56,7 @@ public class Server extends ServerSocket {
 	public void addClient(ServerThread client) {
 		Message msg = new UpdateMessage(client.getID(), null, UpdateMessage.ADD_CLIENT);
 		broadcastUpdate(msg);
-		
+		//System.out.println("here");
 		clients.put(client.getID(), client);
 		List<String> groups = new LinkedList<String>();
 		synchronized(chatrooms) {
@@ -62,7 +66,8 @@ public class Server extends ServerSocket {
 				}
 			}
 		}
-		
+		System.out.print("clients: ");
+		System.out.println(clients);
 		msg = new LoadMessage(null, client.getID(), new LinkedList<String>(clients.keySet()), groups);
 		client.sendMsg(msg);
 	}
@@ -109,8 +114,8 @@ public class Server extends ServerSocket {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	public static void main(String[] args) throws Exception {
+		new Server();
 
 	}
 

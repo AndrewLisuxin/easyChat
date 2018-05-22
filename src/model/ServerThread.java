@@ -19,12 +19,14 @@ public class ServerThread implements Runnable {
 	public ServerThread(Server server, Socket s) throws Exception {
 		this.server = server;
 		this.s = s;
-		ID = "" + s.getInetAddress() + "[" + s.getLocalPort() + "]";
+		ID = "" + s.getInetAddress() + "[" + s.getPort() + "]";
 		
 		conversations = new ConcurrentHashMap<String, Chat>();
 		
-		reader = new ObjectInputStream(s.getInputStream());
 		writer = new ObjectOutputStream(s.getOutputStream());
+		
+		reader = new ObjectInputStream(s.getInputStream());
+		
 	}
 	/* receive and handle message from the client */
 	
@@ -133,7 +135,7 @@ public class ServerThread implements Runnable {
 		try {
 			writer.writeObject(msg);
 		} catch(IOException e) {
-			
+			e.printStackTrace();
 		}
 		
 	}
