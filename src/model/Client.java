@@ -20,7 +20,7 @@ public class Client extends Socket {
 		ID = "" + this.getLocalAddress() + "[" + this.getLocalPort() + "]";
 		
 		mainFrame = frame;
-		
+		mainFrame.setClient(this);
 		
 		writer = new ObjectOutputStream(getOutputStream());
 		reader = new ObjectInputStream(getInputStream());
@@ -70,13 +70,13 @@ public class Client extends Socket {
 		String sourceID = msg.getSourceID();
 		String targetID = msg.getTargetID();
 		if(msg instanceof ChatMessage) {
-			
+			printChatMessage((ChatMessage)msg);
 		} else if(msg instanceof InvitationMessage) {
-			
+			printReceivedInvitationMessage((InvitationMessage)msg);
 		} else if(msg instanceof UpdateMessage) {
-			updateInfor(msg);
+			updateInfor((UpdateMessage)msg);
 		} else if(msg instanceof LoadMessage) {
-			loadInfor(msg);
+			loadInfor((LoadMessage)msg);
 		} else if(msg instanceof RefuseMessage) {
 			
 		} else if(msg instanceof AllowLeaveChatMessage) {
@@ -86,27 +86,26 @@ public class Client extends Socket {
 		}
 	}
 	
-	private void loadInfor(Message msg) {
+	private void loadInfor(LoadMessage msg) {
 		//System.out.println("receive msg!");
-		LoadMessage infor = (LoadMessage)msg;
-		mainFrame.load(infor.getClients(), infor.getGroups());
+		mainFrame.load(msg.getClients(), msg.getGroups());
 	}
 	
-	private void updateInfor(Message msg) {
-		UpdateMessage update = (UpdateMessage)msg;
-		if(update.getOp() == UpdateMessage.ADD_CLIENT) {
-			mainFrame.addClient(update.getSourceID());
-		} else if(update.getOp() == UpdateMessage.REMOVE_CLIENT) {
+	private void updateInfor(UpdateMessage msg) {
 			
-		} else if(update.getOp() == UpdateMessage.ADD_GROUP) {
-			
-		} else if(update.getOp() == UpdateMessage.REMOVE_GROUP) {
+		if(msg.getOp() == UpdateMessage.ADD_CLIENT) {
+			mainFrame.addClient(msg.getSourceID());
+		} else if(msg.getOp() == UpdateMessage.REMOVE_CLIENT) {
+			mainFrame.removeClient(msg.sourceID);
+		} else if(msg.getOp() == UpdateMessage.ADD_GROUP) {
+			mainFrame.addGroup(msg.getSourceID());
+		} else if(msg.getOp() == UpdateMessage.REMOVE_GROUP) {
 			
 		}
 	}
 	
 	private void printChatMessage(ChatMessage msg) { 
-		String str = msg.getSourceID() + " : " + msg.getContent() + "\n";
+		String str = msg.getContent();
 		mainFrame.printChatMessage(str, msg.getSourceID());
 	}
 	public void sendChatMessage(String str, String targetID) {
@@ -120,8 +119,31 @@ public class Client extends Socket {
 	public void printReceivedInvitationMessage(InvitationMessage msg) {
 		mainFrame.printReceivedInvitationMessage(msg.getSourceID());
 	}
+	
+	public void sendReplyMessage(String targetID, boolean accepted) {
+		sendMsg(new ReplyMessage(ID, targetID, accepted));
+	}
+	
+	public void sendJoinGroupMessage(String groupID) {
+		sendMsg(new JoinGroupMessage(ID, groupID));
+	}
+	
+	public void sendRequestLeaveChatMessage(String targetID) {
+		sendMsg(new RequestLeaveChatMessage(ID, targetID));
+	}
+	
+	public void sendRequestExitMessage() {
+		sendMsg(new RequestExitMessage(ID, null));
+	}
+	
+	public void sendCreateGroupMessage() {
+		sendMsg(new CreateGroupMessage(ID, null));
+	}
 	public static void main(String[] args) throws Exception {
 		new Client(new ClientMainFrame());
 	} 
 	
+	public String getID() {
+		return ID;
+	}
 }

@@ -37,9 +37,10 @@ public abstract class Chat implements Runnable {
 		}
 	}
 	
-	public void pushMsg(Message msg) {
+	public void pushMsg(ChatMessage msg) {
 		try {
-			msgQueue.put(msg);
+			ChatMessage transmitMsg = new ChatMessage(chatroomID, null, msg.getContent());
+			msgQueue.put(transmitMsg);
 		} catch(InterruptedException e) {
 			
 		}

@@ -12,7 +12,11 @@ public class IndividualChat extends Chat {
 	}
 	@Override
 	public void removeMember(ServerThread member) {
-		members.clear();
-		closeChat();
+		/*members.clear();
+		closeChat();*/
+		members.remove(member);
+		if(members.isEmpty()) {
+			closeChat();
+		}
 	}
 }
