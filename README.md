@@ -7,12 +7,12 @@ Client:
 1. connect to the Server
 2. send message received from GUI to the server(Event-driven model)
 3. use a seperate thread to continuously receive message from the server.
-4. a user can be involved in mutiple chat at the same time.
+4. a user can be involved in mutiples chat at the same time.
 
 Server: 
 1. for every client connection, use a ServerThread to handle read-write on this socket. 
-2. A client only has one connection to the server, and every Client Thread transmit message from this client to target client Thread or Chat room.
-3. every Chat use a seperate thread to continuously broadcast chat message to every member of this Chat (handle individual chat and group chat in the same way).
+2. A client only has one connection to the server, and every ServerThread transmit message from this client to target client Thread or push it to the message queue of target Chat.
+3. every Chat use a seperate thread to continuously take messages from message queue and broadcast it to every member of this Chat (handle individual chat and group chat in the same way).
 4. if users list or group chat list changes, the server will push this update to every client
 
 Individual chat:
