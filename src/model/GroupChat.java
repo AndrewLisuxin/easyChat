@@ -20,6 +20,7 @@ public class GroupChat extends Chat {
 		members.remove(member);
 		if(members.isEmpty()) {
 			closeChat();
+			
 		}
 	}
 	

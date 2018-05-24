@@ -51,7 +51,7 @@ public abstract class Chat implements Runnable {
 	public void closeChat() {
 		assert members.isEmpty();
 		server.removeChat(this);
-		server = null;
+		//server = null;
 	}
 	
 

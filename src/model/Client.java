@@ -14,6 +14,7 @@ public class Client extends Socket {
 	private ObjectInputStream reader;
 	private ObjectOutputStream writer;
 	private ClientMainFrame mainFrame;
+	private boolean open;
 	public Client(ClientMainFrame frame) throws Exception {
 		super(SERVER_IP, SERVER_PORT);
 		
@@ -24,6 +25,7 @@ public class Client extends Socket {
 		
 		writer = new ObjectOutputStream(getOutputStream());
 		reader = new ObjectInputStream(getInputStream());
+		
 		/* create and start the message receive thread */
 		new Thread(new MsgReceiver()).start();
 		
@@ -41,12 +43,14 @@ public class Client extends Socket {
 	
 	public class MsgReceiver implements Runnable {
 		
-		
-		
+		private boolean open;
+		public MsgReceiver() {
+			open = true;
+		}
 		public void run() {
 			try {
 				
-				while(true) {
+				while(open) {
 					Message msg = (Message)reader.readObject();
 					System.out.println("receive msg!");
 					handleReceivedMessage(msg);
@@ -74,15 +78,16 @@ public class Client extends Socket {
 		} else if(msg instanceof InvitationMessage) {
 			printReceivedInvitationMessage((InvitationMessage)msg);
 		} else if(msg instanceof UpdateMessage) {
+			System.out.println("update!!!");
 			updateInfor((UpdateMessage)msg);
 		} else if(msg instanceof LoadMessage) {
 			loadInfor((LoadMessage)msg);
 		} else if(msg instanceof RefuseMessage) {
-			
+			printRefuseMessage((RefuseMessage)msg);
 		} else if(msg instanceof AllowLeaveChatMessage) {
 			
 		} else if(msg instanceof AllowExitMessage) {
-			
+			open = false;
 		}
 	}
 	
@@ -94,18 +99,21 @@ public class Client extends Socket {
 	private void updateInfor(UpdateMessage msg) {
 			
 		if(msg.getOp() == UpdateMessage.ADD_CLIENT) {
+			System.out.println("add a client!!!");
 			mainFrame.addClient(msg.getSourceID());
 		} else if(msg.getOp() == UpdateMessage.REMOVE_CLIENT) {
-			mainFrame.removeClient(msg.sourceID);
+			System.out.println("remove a client!!!");
+			mainFrame.removeClient(msg.getSourceID());
 		} else if(msg.getOp() == UpdateMessage.ADD_GROUP) {
 			mainFrame.addGroup(msg.getSourceID());
 		} else if(msg.getOp() == UpdateMessage.REMOVE_GROUP) {
-			
+			mainFrame.removeGroup(msg.getSourceID());
 		}
 	}
 	
 	private void printChatMessage(ChatMessage msg) { 
 		String str = msg.getContent();
+		System.out.println("in client.java, content: " + str);
 		mainFrame.printChatMessage(str, msg.getSourceID());
 	}
 	public void sendChatMessage(String str, String targetID) {
@@ -143,6 +151,9 @@ public class Client extends Socket {
 		new Client(new ClientMainFrame());
 	} 
 	
+	public void printRefuseMessage(RefuseMessage msg) {
+		mainFrame.printRefuseMessage(msg.getSourceID());
+	}
 	public String getID() {
 		return ID;
 	}

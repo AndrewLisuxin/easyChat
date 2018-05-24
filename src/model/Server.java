@@ -74,6 +74,7 @@ public class Server extends ServerSocket {
 	
 	public void removeClient(ServerThread client) {
 		clients.remove(client.getID());
+		System.out.println("remove client " + client.getID());
 		Message msg = new UpdateMessage(client.getID(), null, UpdateMessage.REMOVE_CLIENT);
 		broadcastUpdate(msg);
 	}

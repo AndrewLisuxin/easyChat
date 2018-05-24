@@ -9,7 +9,7 @@ public class ServerThread implements Runnable {
 	private Server server;
 	private Socket s;
 	private String ID;
-	private boolean close;
+	private boolean open;
 	/**
 	 * 
 	 * */
@@ -22,19 +22,19 @@ public class ServerThread implements Runnable {
 		this.s = s;
 		ID = "" + s.getInetAddress() + "[" + s.getPort() + "]";
 		
-		conversations = new ConcurrentHashMap<String, Chat>();
+		conversations = new HashMap<String, Chat>();
 		
 		writer = new ObjectOutputStream(s.getOutputStream());
 		
 		reader = new ObjectInputStream(s.getInputStream());
 		
-		close = false;
+		open = true;
 	}
 	/* receive and handle message from the client */
 	
 	public void run() {
 		try {
-			while(!close) {
+			while(open) {
 				Message msg = (Message)reader.readObject();
 				handleMessage(msg);
 			}
@@ -63,7 +63,7 @@ public class ServerThread implements Runnable {
 			joinGroup(targetID);
 			
 		} else if(msg instanceof RequestLeaveChatMessage) {
-			leaveChat(sourceID, targetID);
+			leaveChat(targetID);
 		} else if(msg instanceof RequestExitMessage) {
 			exit();
 		} else if(msg instanceof CreateGroupMessage) {
@@ -100,32 +100,42 @@ public class ServerThread implements Runnable {
 		server.getClients().get(targetID).sendMsg(new RefuseMessage(sourceID, targetID));
 	}
 	
+
+	
 	private void joinGroup(String groupID) {
 		GroupChat group = (GroupChat)(server.getChatrooms().get(groupID));
 		group.addMember(this);
-		conversations.put(group.getChatroomID(), group);
+		conversations.put(groupID, group);
+		pushMsg(new ChatMessage(ID, groupID, "User " + ID + " enters the group!"));
 	}
 	
-	private void leaveChat(String clientID, String chatroomID) {
+	private void leaveChat(String chatroomID) {
 		Chat c = conversations.get(chatroomID);
 		c.removeMember(this);
-		System.out.println("" + clientID + "leaves chatroon " + chatroomID);
-		pushMsg(new ChatMessage(clientID, chatroomID, "User " + ID + " leaves the chatroom!"));
+		
+		//System.out.println("" + clientID + "leaves chatroon " + chatroomID);
+		pushMsg(new ChatMessage(ID, chatroomID, "User " + ID + " leaves the chatroom!"));
 		conversations.remove(chatroomID);
 		//sendMsg(new AllowLeaveChatMessage(chatroomID, clientID));
 	}
 	
 	private void exit() {
-		synchronized(conversations) {
-			for(Map.Entry<String, Chat> chat : conversations.entrySet()) {
-				chat.getValue().removeMember(this);
-				pushMsg(new ChatMessage(ID, chat.getValue().getChatroomID(), "User " + ID + " leaves the chatroom!"));
-			}
+		Set<String> chatIDs = conversations.keySet();
+		for(String chatroomID : chatIDs) {
+			leaveChat(chatroomID);
 		}
-		conversations.clear();
 		server.removeClient(this);
-		server = null;
-		close = true;
+		System.out.println("here.........");
+		sendMsg(new AllowExitMessage());
+		try {
+			Thread.sleep(1000);
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			open = false;
+		}
+		
+		
 		//sendMsg(new AllowExitMessage());
 		
 	}
@@ -134,7 +144,8 @@ public class ServerThread implements Runnable {
 		GroupChat group = new GroupChat(server, this);
 		server.addChat(group);
 		conversations.put(group.getChatroomID(), group);
-		pushMsg(new ChatMessage(ID, group.getChatroomID(), "User " + ID + " enters the group!"));
+		new Thread(group).start();
+		pushMsg(new ChatMessage(ID, group.getChatroomID(), "User " + ID + " creates the group!"));
 	}
 	
 	

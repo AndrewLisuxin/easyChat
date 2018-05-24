@@ -3,6 +3,7 @@ package view;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.Map;
 
 import model.*;
 
@@ -84,6 +85,9 @@ public class ClientMainFrame extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				System.out.println(client.getID() + "logs off");
+				for(Map.Entry<String, ClientChatFrame> chatFrame : chatFrames.entrySet()) {
+					chatFrame.getValue().dispose();
+				}
 				client.sendRequestExitMessage();
 			}
 		});
@@ -118,7 +122,7 @@ public class ClientMainFrame extends JFrame {
 			addClient(client);
 		}
 		for(String group : groups) {
-			addClient(group);
+			addGroup(group);
 		}
 	}
 	
@@ -152,6 +156,10 @@ public class ClientMainFrame extends JFrame {
 			client.sendReplyMessage(sourceID, false);
 		}
 		
+	}
+	
+	public void printRefuseMessage(String sourceID) {
+		JOptionPane.showMessageDialog(null, "" + sourceID + " refuses your chat invitation");
 	}
 	
 	public void sendRequestLeaveChatMessage(String targetID) {
