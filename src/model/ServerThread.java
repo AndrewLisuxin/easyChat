@@ -68,6 +68,10 @@ public class ServerThread implements Runnable {
 			exit();
 		} else if(msg instanceof CreateGroupMessage) {
 			createGroup();
+		} else if(msg instanceof FileMessage) {
+			addFile((FileMessage) msg);
+		} else if(msg instanceof RequestFileMessage) {
+			getFile((RequestFileMessage)msg);
 		}
 	}
 	
@@ -148,7 +152,17 @@ public class ServerThread implements Runnable {
 		pushMsg(new ChatMessage(ID, group.getChatroomID(), "User " + ID + " creates the group!"));
 	}
 	
+	private void addFile(FileMessage msg) {
+		String targetID = msg.getTargetID();
+		File file = msg.getFile();
+		conversations.get(targetID).addFile(file);
+	}
 	
+	private void getFile(RequestFileMessage msg) {
+		String targetID = msg.getTargetID();
+		String fileName = msg.getFileName();
+		sendMsg(new FileMessage(targetID, ID, conversations.get(targetID).getFile(fileName)));
+	}
 	/* send message to the client*/
 	public void sendMsg(Message msg) {
 		try {

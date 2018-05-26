@@ -7,6 +7,8 @@ import java.util.Map;
 
 import model.*;
 
+import java.io.*;
+
 public class ClientMainFrame extends JFrame {
 	private Client client;
 	private java.util.Map<String, ClientChatFrame> chatFrames;
@@ -166,9 +168,27 @@ public class ClientMainFrame extends JFrame {
 		client.sendRequestLeaveChatMessage(targetID);
 	}
 	
+	public void sendFile(File file, String targetID) {
+		client.sendFileMessage(file, targetID);
+	}
+	
+	public void requestFile(String fileName, String chatroomID) {
+		client.requestFile(fileName, chatroomID);
+	}
+	
 	public Client getClient() {
 		return client;
 	}
+	
+	public void addSavePath(String fileName, File file) {
+		client.addSavePath(fileName, file);
+	}
+	
+	public void printFileUpdate(String chatroomID, String fileName) {
+		System.out.println("" + chatroomID + " " + fileName);
+		chatFrames.get(chatroomID).updateFile(fileName);
+	}
+
 }
 
 

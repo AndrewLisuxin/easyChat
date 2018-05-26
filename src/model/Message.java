@@ -135,3 +135,42 @@ class CreateGroupMessage extends Message {
 	} 
 	
 }
+
+class FileMessage extends Message {
+	public static final long serialVersionUID = 13l;
+	private File file;
+	public FileMessage(String sourceID, String targetID, File file) {
+		super(sourceID, targetID);
+		this.file = file;
+	} 
+	public File getFile() {
+		return file;
+	}
+}
+
+
+class RequestFileMessage extends Message {
+	public static final long serialVersionUID = 14l;
+	private String fileName;
+	public RequestFileMessage(String sourceID, String targetID, String fileName) {
+		super(sourceID, targetID);
+		this.fileName = fileName;
+	} 
+	
+	public String getFileName() {
+		return fileName;
+	}
+	
+}
+
+class UpdateFileMessage extends Message {
+	public static final long serialVersionUID = 15l;
+	private String fileName;
+	public UpdateFileMessage(String sourceID, String targetID, String fileName) {
+		super(sourceID, targetID);
+		this.fileName = fileName;
+	}
+	public String getFileName() {
+		return fileName;
+	}
+}

@@ -3,6 +3,7 @@ package model;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
+import java.nio.channels.FileChannel;
 import java.util.*;
 
 import view.*;
@@ -15,6 +16,7 @@ public class Client extends Socket {
 	private ObjectOutputStream writer;
 	private ClientMainFrame mainFrame;
 	private boolean open;
+	private Map<String, File> saveMap;
 	public Client(ClientMainFrame frame) throws Exception {
 		super(SERVER_IP, SERVER_PORT);
 		
@@ -26,6 +28,7 @@ public class Client extends Socket {
 		writer = new ObjectOutputStream(getOutputStream());
 		reader = new ObjectInputStream(getInputStream());
 		
+		saveMap = new HashMap<String, File>();
 		/* create and start the message receive thread */
 		new Thread(new MsgReceiver()).start();
 		
@@ -88,6 +91,10 @@ public class Client extends Socket {
 			
 		} else if(msg instanceof AllowExitMessage) {
 			open = false;
+		} else if(msg instanceof FileMessage) {
+			saveFile((FileMessage)msg);
+		} else if(msg instanceof UpdateFileMessage) {
+			printFileUpdate((UpdateFileMessage)msg);
 		}
 	}
 	
@@ -147,14 +154,59 @@ public class Client extends Socket {
 	public void sendCreateGroupMessage() {
 		sendMsg(new CreateGroupMessage(ID, null));
 	}
+	
+	public void sendFileMessage(File file, String targetID) {
+		sendMsg(new FileMessage(ID, targetID, file));
+	}
+	
 	public static void main(String[] args) throws Exception {
 		new Client(new ClientMainFrame());
 	} 
 	
+	
 	public void printRefuseMessage(RefuseMessage msg) {
 		mainFrame.printRefuseMessage(msg.getSourceID());
+	}
+	
+	public void saveFile(FileMessage msg) {
+		File file = msg.getFile();
+		FileChannel src = null;
+		FileChannel dest = null;
+		try {
+			 src = new FileInputStream(file).getChannel();
+			 dest = new FileOutputStream(saveMap.get(file.getName())).getChannel();
+			 dest.transferFrom(src, 0, src.size());
+		} catch(IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				src.close();
+				dest.close();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+		
+	}
+	
+	public void printFileUpdate(UpdateFileMessage msg) {
+		String chatroomID = msg.getSourceID();
+		String fileName = msg.getFileName();
+		mainFrame.printFileUpdate(chatroomID, fileName);
+	}
+	
+	public void requestFile(String fileName, String chatroomID) {
+		sendMsg(new RequestFileMessage(ID, chatroomID, fileName));
 	}
 	public String getID() {
 		return ID;
 	}
+	
+	public void addSavePath(String fileName, File file) {
+		saveMap.put(fileName, file);
+	}
+	
+	
 }
