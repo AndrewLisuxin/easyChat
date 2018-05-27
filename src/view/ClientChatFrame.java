@@ -23,6 +23,7 @@ public class ClientChatFrame extends JFrame {
 	private JButton fileButton;
 	private JFileChooser fc;
 	private JTextField field;
+	private JButton sendButton;
 	public ClientChatFrame(ClientMainFrame mainFrame, String targetID) {
 		super();
 		setTitle("EasyChat -- " + targetID);
@@ -71,9 +72,9 @@ public class ClientChatFrame extends JFrame {
 		
 		inputPanel = new JPanel(new BorderLayout());
 		
-		buttonPanel = new JPanel();
+		JToolBar toolbar = new JToolBar();
 		
-		fileButton = new JButton("file");
+		fileButton = new JButton(new ImageIcon("images/file.png"));
 		fc = new JFileChooser();
 		fileButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -84,20 +85,24 @@ public class ClientChatFrame extends JFrame {
 				}
 			}
 		});
-		buttonPanel.add(fileButton);
+		toolbar.add(fileButton);
 		
-		inputPanel.add(buttonPanel, BorderLayout.NORTH);
+		inputPanel.add(toolbar, BorderLayout.NORTH);
+		
+		JPanel textInputPane = new JPanel();
+		
+		MessageAction messageAction = new MessageAction("", new ImageIcon("images/msg.png"));
 		
 		field = new JTextField(30);
-		field.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String str = ClientChatFrame.this.mainFrame.getClient().getID() + " : " + field.getText();
-				ClientChatFrame.this.mainFrame.sendChatMessage(str, ClientChatFrame.this.targetID);
-				field.setText("");
-			}
-		});
+		field.addActionListener(messageAction);
 		
-		inputPanel.add(field, BorderLayout.CENTER);
+		textInputPane.add(field);
+		
+		sendButton = new JButton(messageAction);
+		
+		textInputPane.add(sendButton);
+		
+		inputPanel.add(textInputPane, BorderLayout.CENTER);
 		
 		add(inputPanel, BorderLayout.SOUTH);
 		
@@ -114,6 +119,17 @@ public class ClientChatFrame extends JFrame {
 		setVisible(true);
 	}
 	
+	public class MessageAction extends AbstractAction {
+		public MessageAction(String name, Icon icon) {
+			putValue(Action.NAME, name);
+			putValue(Action.SMALL_ICON, icon);
+		}
+		public void actionPerformed(ActionEvent e) {
+			String str = mainFrame.getClient().getID() + " : " + field.getText();
+			mainFrame.sendChatMessage(str, targetID);
+			field.setText("");
+		}
+	}
 	public void printChatMessage(String str) {
 		//System.out.println(outputPanel.getPreferredSize());
 		messageArea.append(str + "\n");

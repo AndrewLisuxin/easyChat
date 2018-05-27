@@ -29,8 +29,11 @@ public class Client extends Socket {
 		reader = new ObjectInputStream(getInputStream());
 		
 		saveMap = new HashMap<String, File>();
+		
+		open = true;
 		/* create and start the message receive thread */
 		new Thread(new MsgReceiver()).start();
+		
 		
 	}
 	
@@ -46,10 +49,7 @@ public class Client extends Socket {
 	
 	public class MsgReceiver implements Runnable {
 		
-		private boolean open;
-		public MsgReceiver() {
-			open = true;
-		}
+		
 		public void run() {
 			try {
 				
