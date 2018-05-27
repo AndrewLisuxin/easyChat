@@ -11,7 +11,7 @@ Client:
 
 Server: 
 1. for every client connection, use a ServerThread to handle read-write on this socket. 
-2. A client only has one connection to the server, and every ServerThread transmit message from this client to target client Thread or push it to the message queue of target Chat.
+2. A client only has one connection to the server, and every ServerThread transmit message from this client to target client or push it to the message queue of target Chat.
 3. every Chat use a seperate thread to continuously take messages from message queue and broadcast it to every member of this Chat (handle individual chat and group chat in the same way).
 4. if users list or group chat list changes, the server will push this update to every client
 
@@ -20,5 +20,8 @@ Individual chat:
 
 Group Chat:
 1. a user can create groups
-2. any use can join any group without permission check
+2. any client can join any group without permission check
+
+Additional functions:
+1. support files upload and download
 
