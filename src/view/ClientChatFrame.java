@@ -14,6 +14,8 @@ public class ClientChatFrame extends JFrame {
 	private ClientMainFrame mainFrame;
 	private String targetID;
 	private JTextArea messageArea;
+	private JList<String> memberList;
+	private DefaultListModel<String> memberIDs;
 	private JList<String> fileList;
 	private DefaultListModel<String> fileNames;
 	//private JPanel box;
@@ -34,13 +36,26 @@ public class ClientChatFrame extends JFrame {
 
 		JScrollPane messageScrollPane = new JScrollPane();
 		
-		messageArea = new JTextArea(30, 30);
+		messageArea = new JTextArea(20, 30);
 		messageArea.setEditable(false);
 		
 		messageScrollPane.setViewportView(messageArea);
 		//messageScrollPane.setPreferredSize(new Dimension(300,400));
 	
+		JTabbedPane additionalPane = new JTabbedPane();
+		
+		JScrollPane memberScrollPane = new JScrollPane();
+		
+		memberList = new JList<String>();
+		memberIDs = new DefaultListModel<String>();
+		memberList.setModel(memberIDs);
+		
+		memberScrollPane.setViewportView(memberList);
+		
+		additionalPane.addTab("Members", memberScrollPane);
+		
 		JScrollPane fileScrollPane = new JScrollPane();
+		
 		
 		fileList = new JList<String> ();
 		fileNames = new DefaultListModel<String>();
@@ -62,11 +77,13 @@ public class ClientChatFrame extends JFrame {
 		
 		fileScrollPane.setViewportView(fileList);
 		
+		additionalPane.addTab("Shared files", fileScrollPane);
+		
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
-				messageScrollPane, fileScrollPane);
+				messageScrollPane, additionalPane);
 		splitPane.setOneTouchExpandable(true);
-		splitPane.setPreferredSize(new Dimension(500, 300));
-		splitPane.setDividerLocation(300);
+		splitPane.setPreferredSize(new Dimension(600, 400));
+		splitPane.setDividerLocation(350);
 		
 		add(splitPane, BorderLayout.CENTER);
 		
@@ -116,6 +133,7 @@ public class ClientChatFrame extends JFrame {
 		});
 		
 		pack();
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setVisible(true);
 	}
 	
@@ -138,6 +156,29 @@ public class ClientChatFrame extends JFrame {
 	
 	public void updateFile(String fileName) {
 		fileNames.addElement(fileName);
+	}
+	
+	public void loadFiles(java.util.List<String> fileNames) {
+		for(String fileName : fileNames) {
+			updateFile(fileName);
+		}
+	}
+	public void addMember(String ID) {
+		memberIDs.addElement(ID);
+	}
+	
+	public void removeMember(String ID) {
+		int idx = 0;
+		while(memberIDs.get(idx).equals(ID)) {
+			++idx;
+		}
+		memberIDs.remove(idx);
+		
+	}
+	public void loadMembers(java.util.List<String> memberIDs) {
+		for(String ID : memberIDs) {
+			addMember(ID);
+		}
 	}
 	/*public class MesssageComponent extends JComponent {
 		private String str;

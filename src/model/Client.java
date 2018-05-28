@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import view.*;
 
@@ -12,6 +13,7 @@ public class Client extends Socket {
 	private static final String SERVER_IP = "127.0.0.1";
 	private static final int SERVER_PORT = 8189;
 	private String ID;
+	//private Map<String, String> connected;
 	private ObjectInputStream reader;
 	private ObjectOutputStream writer;
 	private ClientMainFrame mainFrame;
@@ -21,7 +23,9 @@ public class Client extends Socket {
 		super(SERVER_IP, SERVER_PORT);
 		
 		ID = "" + this.getLocalAddress() + "[" + this.getLocalPort() + "]";
-		
+		//connected = new ConcurrentHashMap<String, String>();
+
+				
 		mainFrame = frame;
 		mainFrame.setClient(this);
 		
@@ -88,7 +92,7 @@ public class Client extends Socket {
 		} else if(msg instanceof RefuseMessage) {
 			printRefuseMessage((RefuseMessage)msg);
 		} else if(msg instanceof AllowLeaveChatMessage) {
-			
+			//cleanChat((AllowLeaveChatMessage)msg);
 		} else if(msg instanceof AllowExitMessage) {
 			open = false;
 		} else if(msg instanceof FileMessage) {
@@ -121,6 +125,19 @@ public class Client extends Socket {
 	private void printChatMessage(ChatMessage msg) { 
 		String str = msg.getContent();
 		System.out.println("in client.java, content: " + str);
+		String chatroomID = msg.getSourceID();
+		if(msg instanceof LoadChatMessage) {
+			mainFrame.addChatFrame(chatroomID, ((LoadChatMessage) msg).getMembers(), ((LoadChatMessage) msg).getFileNames());
+		} else if(msg instanceof UpdateMemberMessage) {
+			String member = msg.getTargetID();
+			System.out.println("updateMember!!");
+			if(((UpdateMemberMessage) msg).getOp() == UpdateMemberMessage.ADD_MEMBER) {
+				mainFrame.addMember(chatroomID, member);
+			} 
+			else {
+				mainFrame.removeMember(chatroomID, member);
+			}
+		} 
 		mainFrame.printChatMessage(str, msg.getSourceID());
 	}
 	public void sendChatMessage(String str, String targetID) {
@@ -128,6 +145,7 @@ public class Client extends Socket {
 	}
 	
 	public void sendInvitationMessage(String targetID) {
+		//connected.put(targetID, "");
 		sendMsg(new InvitationMessage(ID, targetID));
 	}
 	
@@ -140,14 +158,17 @@ public class Client extends Socket {
 	}
 	
 	public void sendJoinGroupMessage(String groupID) {
+		//connected.put(groupID, "");
 		sendMsg(new JoinGroupMessage(ID, groupID));
 	}
 	
 	public void sendRequestLeaveChatMessage(String targetID) {
+		//connected.remove(targetID);
 		sendMsg(new RequestLeaveChatMessage(ID, targetID));
 	}
 	
 	public void sendRequestExitMessage() {
+		
 		sendMsg(new RequestExitMessage(ID, null));
 	}
 	
@@ -165,6 +186,7 @@ public class Client extends Socket {
 	
 	
 	public void printRefuseMessage(RefuseMessage msg) {
+		//connected.remove(msg.getSourceID());
 		mainFrame.printRefuseMessage(msg.getSourceID());
 	}
 	
@@ -207,6 +229,7 @@ public class Client extends Socket {
 	public void addSavePath(String fileName, File file) {
 		saveMap.put(fileName, file);
 	}
+	
 	
 	
 }

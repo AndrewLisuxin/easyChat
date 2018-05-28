@@ -174,3 +174,38 @@ class UpdateFileMessage extends Message {
 		return fileName;
 	}
 }
+
+class LoadChatMessage extends ChatMessage {
+	public static final long serialVersionUID = 18l;
+	private List<String> fileNames;
+	private List<String> members;
+	public LoadChatMessage(String sourceID, String targetID, String content, List<String> members, List<String> fileNames) {
+		super(sourceID, targetID, content);
+		this.fileNames = fileNames;
+		this.members = members;
+	}
+	public List<String> getFileNames() {
+		return fileNames;
+	}
+	public List<String> getMembers() {
+		return members;
+	}
+}
+
+
+class UpdateMemberMessage extends ChatMessage {
+	
+	public static final long serialVersionUID = 17l;
+	public static final int ADD_MEMBER = 1;
+	public static final int REMOVE_MEMBER = 2;
+	private int op;
+
+	public UpdateMemberMessage(String sourceID, String targetID, String content, int op) {
+		super(sourceID, targetID, content);
+		this.op = op;
+	}
+	
+	public int getOp() {
+		return op;
+	}
+}

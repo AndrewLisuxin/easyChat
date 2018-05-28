@@ -6,17 +6,14 @@ public class IndividualChat extends Chat {
 		//server.getChatrooms().put(chatroomID, this);
 		members.add(a);
 		members.add(b);
+		
+		a.sendMsg(new LoadChatMessage(chatroomID, null, "now you can chat!", getMemberIDs(), getFileNames()));
+		b.sendMsg(new LoadChatMessage(chatroomID, null, "now you can chat!", getMemberIDs(), getFileNames()));
 		//a.getConversations().put(chatroomID, this);
 		//b.getConversations().put(chatroomID, this);
 		
 	}
-	@Override
-	public void removeMember(ServerThread member) {
-		/*members.clear();
-		closeChat();*/
-		members.remove(member);
-		if(members.isEmpty()) {
-			closeChat();
-		}
-	}
+	
+	
+	
 }

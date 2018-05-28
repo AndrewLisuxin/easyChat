@@ -97,7 +97,7 @@ public class ServerThread implements Runnable {
 		a.getConversations().put(chat.getChatroomID(), chat);
 		b.getConversations().put(chat.getChatroomID(), chat);
 		new Thread(chat).start();
-		pushMsg(new ChatMessage(null, chat.getChatroomID(), "now you can chat!"));
+		//pushMsg(new ChatMessage(null, chat.getChatroomID(), "now you can chat!"));
 	}
 	
 	private void sendRefuseMessage(String sourceID, String targetID) {
@@ -110,7 +110,7 @@ public class ServerThread implements Runnable {
 		GroupChat group = (GroupChat)(server.getChatrooms().get(groupID));
 		group.addMember(this);
 		conversations.put(groupID, group);
-		pushMsg(new ChatMessage(ID, groupID, "User " + ID + " enters the group!"));
+		//pushMsg(new ChatMessage(ID, groupID, "User " + ID + " enters the group!"));
 	}
 	
 	private void leaveChat(String chatroomID) {
@@ -118,13 +118,13 @@ public class ServerThread implements Runnable {
 		c.removeMember(this);
 		
 		//System.out.println("" + clientID + "leaves chatroon " + chatroomID);
-		pushMsg(new ChatMessage(ID, chatroomID, "User " + ID + " leaves the chatroom!"));
+		//pushMsg(new ChatMessage(ID, chatroomID, "User " + ID + " leaves the chatroom!"));
 		conversations.remove(chatroomID);
 		//sendMsg(new AllowLeaveChatMessage(chatroomID, clientID));
 	}
 	
 	private void exit() {
-		Set<String> chatIDs = conversations.keySet();
+		Set<String> chatIDs = new HashSet<String>(conversations.keySet());
 		for(String chatroomID : chatIDs) {
 			leaveChat(chatroomID);
 		}
@@ -149,7 +149,7 @@ public class ServerThread implements Runnable {
 		server.addChat(group);
 		conversations.put(group.getChatroomID(), group);
 		new Thread(group).start();
-		pushMsg(new ChatMessage(ID, group.getChatroomID(), "User " + ID + " creates the group!"));
+		//pushMsg(new ChatMessage(ID, group.getChatroomID(), "User " + ID + " creates the group!"));
 	}
 	
 	private void addFile(FileMessage msg) {
@@ -164,7 +164,9 @@ public class ServerThread implements Runnable {
 		sendMsg(new FileMessage(targetID, ID, conversations.get(targetID).getFile(fileName)));
 	}
 	/* send message to the client*/
-	public void sendMsg(Message msg) {
+	
+	/* notice: both server and chat can call this func, and writeObject is NOT thread-safe*/
+	public synchronized void sendMsg(Message msg) {
 		try {
 			writer.writeObject(msg);
 		} catch(IOException e) {

@@ -26,7 +26,10 @@ public abstract class Chat implements Runnable {
 		try{
 			while(!members.isEmpty()) {
 				Message msg = msgQueue.take();
-				
+				if(msg instanceof ChatMessage) {
+					System.out.println(((ChatMessage)msg).getContent());
+				}
+				System.out.println(members.size());
 				synchronized (members) {
 					for(ServerThread member: members) {
 						member.sendMsg(msg);
@@ -46,6 +49,8 @@ public abstract class Chat implements Runnable {
 				transmitMsg = new ChatMessage(chatroomID, null, ((ChatMessage)msg).getContent());
 			} else if(msg instanceof UpdateFileMessage) {
 				transmitMsg = new UpdateFileMessage(chatroomID, null, ((UpdateFileMessage)msg).getFileName());
+			} else if(msg instanceof UpdateMemberMessage) {
+				transmitMsg = msg;
 			}
 			
 			msgQueue.put(transmitMsg);
@@ -54,7 +59,13 @@ public abstract class Chat implements Runnable {
 		}
 	}
 	
-	public abstract void removeMember(ServerThread member);
+	public void removeMember(ServerThread member) {
+		members.remove(member);
+		pushMsg(new UpdateMemberMessage(chatroomID, member.getID(), "User " + member.getID() + " leaves the chatroom!", UpdateMemberMessage.REMOVE_MEMBER));
+		if(members.isEmpty()) {
+			closeChat();
+		}
+	}
 	
 	public void closeChat() {
 		assert members.isEmpty();
@@ -83,5 +94,21 @@ public abstract class Chat implements Runnable {
 	
 	public String getChatroomID() {
 		return chatroomID;
+	}
+	
+	public synchronized List<String> getMemberIDs() {
+		LinkedList<String> res = new LinkedList<String>();
+		for(ServerThread member : members) {
+			res.add(member.getID());
+		}
+		return res;
+	}
+	
+	public synchronized List<String> getFileNames() {
+		LinkedList<String> res = new LinkedList<String>();
+		for(File file: files) {
+			res.add(file.getName());
+		}
+		return res;
 	}
 }

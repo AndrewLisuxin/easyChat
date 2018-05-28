@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import model.*;
 
@@ -24,7 +25,7 @@ public class ClientMainFrame extends JFrame {
 		/* dfs */
 		setTitle("EasyChat");
 		
-		chatFrames = new java.util.HashMap<String, ClientChatFrame>();
+		chatFrames = new ConcurrentHashMap<String, ClientChatFrame>();
 		mainPane = new JTabbedPane();
 		
 		JScrollPane clientScrollPane = new JScrollPane();
@@ -37,7 +38,11 @@ public class ClientMainFrame extends JFrame {
 				if(e.getClickCount() >= 2) {
 					int idx = clientList.locationToIndex(e.getPoint());
 					String targetID = clients.get(idx);
-					client.sendInvitationMessage(targetID);
+					
+					if(!targetID.equals(client.getID())) {
+						client.sendInvitationMessage(targetID);
+					}
+					
 				}
 			}
 		});
@@ -93,6 +98,7 @@ public class ClientMainFrame extends JFrame {
 				client.sendRequestExitMessage();
 			}
 		});
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setVisible(true);
 			
 	}
@@ -135,15 +141,18 @@ public class ClientMainFrame extends JFrame {
 	public void printChatMessage(String str, String chatroomID) {
 		System.out.println("chat content: " + str);
 		System.out.println("chatroom: " + chatroomID);
-		if(!chatFrames.containsKey(chatroomID)) {
-			addChatFrame(chatroomID);
-		}
+		
 		chatFrames.get(chatroomID).printChatMessage(str);
 	}
 	
-	public void addChatFrame(String chatroomID) {
-		chatFrames.put(chatroomID, new ClientChatFrame(this, chatroomID));
+	public void addChatFrame(String chatroomID, java.util.List<String> members, java.util.List<String> fileNames) {
+		ClientChatFrame chatFrame = new ClientChatFrame(this, chatroomID);
+		chatFrames.put(chatroomID, chatFrame);
+		chatFrame.loadMembers(members);
+		chatFrame.loadFiles(fileNames);
+		
 	}
+	
 	public void removeChatFrame(String targetID) {
 		chatFrames.remove(targetID);
 	}
@@ -188,7 +197,18 @@ public class ClientMainFrame extends JFrame {
 		System.out.println("" + chatroomID + " " + fileName);
 		chatFrames.get(chatroomID).updateFile(fileName);
 	}
+	
+	public void addMember(String chatroomID, String member) {
+		System.out.println("" + chatroomID + " " + member);
+		chatFrames.get(chatroomID).addMember(member);
+	}
+	
+	public void removeMember(String chatroomID, String member) {
+		chatFrames.get(chatroomID).removeMember(member);
+	}
+	
 
+	
 }
 
 
