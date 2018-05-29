@@ -78,8 +78,6 @@ public class Client extends Socket {
 	} 
 	
 	private void handleReceivedMessage(Message msg) {
-		String sourceID = msg.getSourceID();
-		String targetID = msg.getTargetID();
 		if(msg instanceof ChatMessage) {
 			printChatMessage((ChatMessage)msg);
 		} else if(msg instanceof InvitationMessage) {
@@ -127,17 +125,20 @@ public class Client extends Socket {
 		System.out.println("in client.java, content: " + str);
 		String chatroomID = msg.getSourceID();
 		if(msg instanceof LoadChatMessage) {
+			System.out.println("LoadChatMessage!!");
 			mainFrame.addChatFrame(chatroomID, ((LoadChatMessage) msg).getMembers(), ((LoadChatMessage) msg).getFileNames());
 		} else if(msg instanceof UpdateMemberMessage) {
 			String member = msg.getTargetID();
-			System.out.println("updateMember!!");
+			System.out.println("updateMemberMessage!!");
 			if(((UpdateMemberMessage) msg).getOp() == UpdateMemberMessage.ADD_MEMBER) {
 				mainFrame.addMember(chatroomID, member);
 			} 
 			else {
 				mainFrame.removeMember(chatroomID, member);
 			}
-		} 
+		} else {
+			System.out.println("normal ChatMessage!!");
+		}
 		mainFrame.printChatMessage(str, msg.getSourceID());
 	}
 	public void sendChatMessage(String str, String targetID) {

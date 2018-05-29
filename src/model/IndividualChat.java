@@ -1,5 +1,6 @@
 package model;
 
+import java.util.*;
 public class IndividualChat extends Chat {
 	public IndividualChat(Server server, ServerThread a, ServerThread b) {
 		super(server);
@@ -7,8 +8,10 @@ public class IndividualChat extends Chat {
 		members.add(a);
 		members.add(b);
 		
-		a.sendMsg(new LoadChatMessage(chatroomID, null, "now you can chat!", getMemberIDs(), getFileNames()));
-		b.sendMsg(new LoadChatMessage(chatroomID, null, "now you can chat!", getMemberIDs(), getFileNames()));
+		List<String> members = getMemberIDs(); 
+		List<String> files = getFileNames();
+		a.sendMsg(new LoadChatMessage(chatroomID, null, "now you can chat!", members, files));
+		b.sendMsg(new LoadChatMessage(chatroomID, null, "now you can chat!", members, files));
 		//a.getConversations().put(chatroomID, this);
 		//b.getConversations().put(chatroomID, this);
 		

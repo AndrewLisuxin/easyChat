@@ -44,16 +44,7 @@ public abstract class Chat implements Runnable {
 	
 	public void pushMsg(Message msg) {
 		try {
-			Message transmitMsg = null;
-			if(msg instanceof ChatMessage) {
-				transmitMsg = new ChatMessage(chatroomID, null, ((ChatMessage)msg).getContent());
-			} else if(msg instanceof UpdateFileMessage) {
-				transmitMsg = new UpdateFileMessage(chatroomID, null, ((UpdateFileMessage)msg).getFileName());
-			} else if(msg instanceof UpdateMemberMessage) {
-				transmitMsg = msg;
-			}
-			
-			msgQueue.put(transmitMsg);
+			msgQueue.put(msg);
 		} catch(InterruptedException e) {
 			
 		}
@@ -73,10 +64,11 @@ public abstract class Chat implements Runnable {
 		//server = null;
 	}
 	
-	public void addFile(File file) {
+	public void addFile(File file, String memberID) {
 		files.add(file);
 		/* push the file update */
-		pushMsg(new  UpdateFileMessage(null, chatroomID, file.getName()));
+		pushMsg(new UpdateFileMessage(chatroomID, null, file.getName()));
+		pushMsg(new ChatMessage(chatroomID, null, "member " + memberID + " uploads file '" +  file.getName() + "'"));
 	}
 	
 	public File getFile(String fileName) {
@@ -96,18 +88,23 @@ public abstract class Chat implements Runnable {
 		return chatroomID;
 	}
 	
-	public synchronized List<String> getMemberIDs() {
+	public List<String> getMemberIDs() {
 		LinkedList<String> res = new LinkedList<String>();
-		for(ServerThread member : members) {
-			res.add(member.getID());
+		synchronized(members) {
+			for(ServerThread member : members) {
+				res.add(member.getID());
+			}
 		}
+		
 		return res;
 	}
 	
-	public synchronized List<String> getFileNames() {
+	public List<String> getFileNames() {
 		LinkedList<String> res = new LinkedList<String>();
-		for(File file: files) {
-			res.add(file.getName());
+		synchronized(files) {
+			for(File file: files) {
+				res.add(file.getName());
+			}
 		}
 		return res;
 	}

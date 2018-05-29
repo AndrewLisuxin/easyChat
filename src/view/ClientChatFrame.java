@@ -169,7 +169,7 @@ public class ClientChatFrame extends JFrame {
 	
 	public void removeMember(String ID) {
 		int idx = 0;
-		while(memberIDs.get(idx).equals(ID)) {
+		while(!memberIDs.get(idx).equals(ID)) {
 			++idx;
 		}
 		memberIDs.remove(idx);

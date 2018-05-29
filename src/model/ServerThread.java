@@ -153,9 +153,10 @@ public class ServerThread implements Runnable {
 	}
 	
 	private void addFile(FileMessage msg) {
-		String targetID = msg.getTargetID();
+		String uploader = msg.getSourceID();
+		String chatroomID = msg.getTargetID();
 		File file = msg.getFile();
-		conversations.get(targetID).addFile(file);
+		conversations.get(chatroomID).addFile(file, uploader);
 	}
 	
 	private void getFile(RequestFileMessage msg) {
@@ -179,7 +180,9 @@ public class ServerThread implements Runnable {
 	/* push message to group */
 	public void pushMsg(ChatMessage msg) {
 		/* dispatch to the chatGroup */
-		conversations.get(msg.getTargetID()).pushMsg(msg);
+		String chatroomID = msg.getTargetID();
+		ChatMessage transmitMsg = new ChatMessage(chatroomID, null, msg.getContent());
+		conversations.get(chatroomID).pushMsg(transmitMsg);
 		
 	}
 	

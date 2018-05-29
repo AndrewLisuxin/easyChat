@@ -73,7 +73,13 @@ public class ClientMainFrame extends JFrame {
 				if(e.getClickCount() >= 2) {
 					int idx = groupList.locationToIndex(e.getPoint());
 					String groupID = groups.get(idx);
-					client.sendJoinGroupMessage(groupID);
+					if(chatFrames.containsKey(groupID)) {
+						chatFrames.get(groupID).toFront();
+					}
+					else {
+						client.sendJoinGroupMessage(groupID);
+					}
+					
 				}
 			}
 		});
@@ -207,7 +213,6 @@ public class ClientMainFrame extends JFrame {
 		chatFrames.get(chatroomID).removeMember(member);
 	}
 	
-
 	
 }
 
