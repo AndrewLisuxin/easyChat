@@ -193,24 +193,15 @@ public class Client extends Socket {
 	
 	public void saveFile(FileMessage msg) {
 		File file = msg.getFile();
-		FileChannel src = null;
-		FileChannel dest = null;
-		try {
-			 src = new FileInputStream(file).getChannel();
-			 dest = new FileOutputStream(saveMap.get(file.getName())).getChannel();
+		
+		try(FileChannel src = new FileInputStream(file).getChannel();
+			FileChannel dest = new FileOutputStream(saveMap.get(file.getName())).getChannel()) {
 			 dest.transferFrom(src, 0, src.size());
 		} catch(IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				src.close();
-				dest.close();
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
+			mainFrame.printSaveFileFailure(saveMap.get(file.getName()).getName());
+		} 
 			
-		}
-		
+	
 		
 	}
 	

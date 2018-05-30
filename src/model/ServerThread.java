@@ -34,13 +34,19 @@ public class ServerThread implements Runnable {
 	
 	public void run() {
 		try {
-			while(open) {
-				Message msg = (Message)reader.readObject();
-				handleMessage(msg);
+			try {
+				while(open) {
+					Message msg = (Message)reader.readObject();
+					handleMessage(msg);
+				}
+			} finally {
+				reader.close();
+				writer.close();
+				s.close();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-		}
+		} 
 		
 		
 	}
@@ -131,13 +137,17 @@ public class ServerThread implements Runnable {
 		server.removeClient(this);
 		System.out.println("here.........");
 		sendMsg(new AllowExitMessage());
+		
+		/* delay for a while to avoid the socket is closed before sending out the msg */
 		try {
 			Thread.sleep(1000);
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(InterruptedException e) {
+			
 		} finally {
 			open = false;
 		}
+		
+		
 		
 		
 		//sendMsg(new AllowExitMessage());

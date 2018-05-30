@@ -46,7 +46,7 @@ public abstract class Chat implements Runnable {
 		try {
 			msgQueue.put(msg);
 		} catch(InterruptedException e) {
-			
+			/* the interruption will almost never happen, so we just ignore the exception */
 		}
 	}
 	

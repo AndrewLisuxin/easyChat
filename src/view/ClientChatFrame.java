@@ -179,6 +179,7 @@ public class ClientChatFrame extends JFrame {
 		for(String ID : memberIDs) {
 			addMember(ID);
 		}
+		repaint();
 	}
 	/*public class MesssageComponent extends JComponent {
 		private String str;

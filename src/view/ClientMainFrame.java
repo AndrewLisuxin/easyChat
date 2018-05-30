@@ -179,6 +179,9 @@ public class ClientMainFrame extends JFrame {
 		JOptionPane.showMessageDialog(null, "" + sourceID + " refuses your chat invitation");
 	}
 	
+	public void printSaveFileFailure(String fileName) {
+		JOptionPane.showMessageDialog(null, "save file '" + fileName + "' failed!");
+	}
 	public void sendRequestLeaveChatMessage(String targetID) {
 		client.sendRequestLeaveChatMessage(targetID);
 	}
