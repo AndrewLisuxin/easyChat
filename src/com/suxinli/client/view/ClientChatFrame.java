@@ -91,7 +91,7 @@ public class ClientChatFrame extends JFrame {
 		
 		JToolBar toolbar = new JToolBar();
 		
-		fileButton = new JButton(new ImageIcon("/com/suxinli/res/images/file.png"));
+		fileButton = new JButton(new ImageIcon(getClass().getResource("/com/suxinli/res/images/file.png")));
 		fc = new JFileChooser();
 		fileButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -108,7 +108,7 @@ public class ClientChatFrame extends JFrame {
 		
 		JPanel textInputPane = new JPanel();
 		
-		MessageAction messageAction = new MessageAction("", new ImageIcon("/com/suxinli/res/images/msg.png"));
+		MessageAction messageAction = new MessageAction("", new ImageIcon(getClass().getResource("/com/suxinli/res/images/msg.png")));
 		
 		field = new JTextField(30);
 		field.addActionListener(messageAction);
